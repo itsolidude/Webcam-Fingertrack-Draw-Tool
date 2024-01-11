@@ -32,3 +32,18 @@ class FingertipTracker:
             return x, y
         # Return None if no hand landmarks are detected.
         return None
+    
+    def is_fist_closed(self, hand_no=0):
+        if self.results.multi_hand_landmarks:
+            hand = self.results.multi_hand_landmarks[hand_no]
+            landmarks = hand.landmark
+
+            # Example check: Compare the tip of the index finger with a lower landmark
+            index_tip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+            palm_base = landmarks[self.mp_hands.HandLandmark.WRIST]
+
+            # Check if the index finger is close to the base of the palm
+            if index_tip.y > palm_base.y:  # y-coordinate is higher for lower screen positions
+                return True
+        return False
+    

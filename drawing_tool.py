@@ -6,11 +6,8 @@ class DrawingTool:
         self.drawing_points = []
 
     def draw(self, image, points):
-        # Draw circles on the image at each point in the points list.
-        for point in points:
-            # Draw a green circle of radius 5 at each point.
-            cv2.circle(image, point, 5, (0, 255, 0), cv2.FILLED)
-        # Return the image with the drawings.
+        for i in range(1, len(points)):
+            cv2.line(image, points[i - 1], points[i], (0, 255, 0), thickness=2)
         return image
 
     def add_point(self, point):
