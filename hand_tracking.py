@@ -1,12 +1,10 @@
 import cv2
-import mediapipe as mp
+from fingertip_tracking import FingertipTracker
+from drawing_tool import DrawingTool
 
-# Initialize MediaPipe Hand module.
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands()
-
-# Initialize MediaPipe drawing module.
-mp_drawing = mp.solutions.drawing_utils
+# Initialize FingertipTracker and DrawingTool
+fingertip_tracker = FingertipTracker()
+drawing_tool = DrawingTool()
 
 # Start capturing video from the webcam.
 cap = cv2.VideoCapture(0)
@@ -16,22 +14,18 @@ while cap.isOpened():
     if not success:
         continue
 
-    # Flip the image horizontally for a later selfie-view display.
-    # Convert the color space from BGR to RGB.
-    image = cv2.flip(image, 1)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    # Track fingertip
+    image = fingertip_tracker.track(image)
+    fingertip = fingertip_tracker.get_index_fingertip(image)
 
-    # Process the image and find hands.
-    results = hands.process(image)
+    if fingertip:
+        drawing_tool.add_point(fingertip)
 
-    # Draw hand landmarks.
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-            mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+    # Draw points
+    image = drawing_tool.draw(image, drawing_tool.get_points())
 
     # Display the image.
-    cv2.imshow('Hand Tracking', image)
+    cv2.imshow('Hand Tracking with Drawing', image)
     if cv2.waitKey(5) & 0xFF == 27:
         break
 
